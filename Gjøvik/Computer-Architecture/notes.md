@@ -30,7 +30,9 @@ SP adressen til toppen av stacken, base peker til bunnen
 
 
 ## Memory
-```Det som befinner seg i minnet: data og instruksjonen```
+```Det som befinner seg i minnet: data og instruksjoner```
+- Hele minnet er delt inn i linjer på 64 byte
+
 
 
 ## I/O (Input/Output)
@@ -156,6 +158,106 @@ Stopper du et program, så lagres registrene og registrene til det nye programme
 - Kan laste 2 programmer samtidig og skifte lynraskt mellom de to
 - Kan bare regne på en om gangen (1 ALU)
 - En CPU kjærne kan holde tilstanden til to programmer samtidig
+
+
+
+### Access times
+- CPU (0.5ns) Aksessere et register og utføre en 
+- L1 cache (2ns) 
+- L2 cache (10ns)
+- L3 cache (20ns) 
+- Minne-RAM (60ns) 
+- SSD (100us)
+- NIC (10ms)
+
+
+### Cache
+
+- cache er veldig effektivt på repetisjoner (løkker)
+- En rask cache må være liten
+- virker ikke første gang man aksesserer data, men ved gjenbruk
+- Legger igjen en cacheline som som regel er 64 byte
+    - en int er 4 byte
+
+
+## Cache Locallity of reference
+- Data gjenbrukes i tid og rom
+```
+Minnet er delt inn i linjer på 64 byte
+Henter en linje til cache, som kalles en cacheline (typisk 64 byte)
+Siden en INT er 4 byte, så kan man cache 16 INT
+```
+### Write policy
+
+Eksempel: 
+```
+En minnepenn
+Bruker man write-back, så kan det være at det som er skrevet ikke er lagret  på minnepenn enda, men ligger lagret i en cache/ramcache
+Fjerner man minnepennen, så kan man risikere datatap
+Derfor OS ber om "Safely remove hardware"
+```
+
+```
+En minnepenn
+Bruker man write-through
+Så er det skrevet umiddelbart, men skrivingen går tregt
+```
+
+#### Write-through 
+(Write to cache line AND immediately to memory)
+- Gir dårlig ytelse
+- Trygt og enkelt
+- Slipper synkroniseringsproblemer
+
+
+#### Write-back 
+(Write to cache line and mark cache line as dirty)
+- Endrede data som skal skrives ut kalles dirty
+- Når OS ber om safely remove hardware, så sjekker det om det ligger dirty data, som må skrives før man fjerner minnepennen
+
+```
+write back er spessielt utfordrende når det er flere CPU-kjærner
+Flere kjærner, mer synkronisering og ytelsen flater ut
+Stopper vanligvis opp ved 32 / 64 kjerner på en server
+
+```
+
+
+
+
+### Spatial locality
+- Når man aksesserer data, så skal man mest sansynlig aksessere data som ligger ved siden av etterpå.
+
+### Temporal locality
+- Samlokalisert i tid
+- Løkker, instruksjoner som skal gjentas
+
+
+``` 
+I OS er det et poeng at når bi utfører en context switch (bytter fra å jobbe i et program til et annet), så er cachen full av data fra forrige program og det tar tid å bytte den ut. 
+
+Derfor sier vi at en context switch er ganske kostbart
+
+
+ ```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
