@@ -321,7 +321,7 @@ Hvor stor blir bitmapen ?
 - har PageTable-Register (Inneholder en adresse inn til fysisk minne hvor den aktuelle prosessens Page-Tabell ligger)
 
 ##### TLB cache
-- kommer senere
+- Se Memory Management Notes.md
 
 ##### PageTable-Register
 - heter CR3 på x86
