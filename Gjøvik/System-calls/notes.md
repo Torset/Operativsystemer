@@ -126,6 +126,7 @@ $>
     - 4 tilstander, men viser bare 2 her, de to andre (01 /10 kommer vi tilbake til i virtualisering)
 
 ### Kernel mode
+- OS kjører i kernel mode
 - Bare kernel får lov til å gjøre alt
 - Bare kernel får gjøre I/O
 
