@@ -129,7 +129,7 @@ while h is on heap at 0x55eb184a82a0
 
 
 ## User space / kernel space i minnet
-- vi ser at adressene fra stack som ligger nederst i adresseomfådet starter med 7
+- vi ser at adressene fra stack som ligger nederst i adresseområdet starter med 7
 - Vi vet at med hex kan vi adressere til 16
 - Adressene bruker bare halvparten av adresseområdet fordi den andre halvparten av adressene tilhører kernel space
 
@@ -256,6 +256,7 @@ for example 258 in binary is:
 - Internal fragmentation (problem for variable sized units)
     - Bortkastet plass inni enheter(eks prosesser)
     - Er at en liten int kan ta opp en hel blokk i minnet
+    - Løser problemet med Paging
 - External fragmentation (problem for fixed size units)
     - Bortkastet plass mellom enheter(eks prosesser)
     - Er når du har ting lagret på en sånn måte at det slåser plass mellom prosesser i fysisk minne
@@ -309,7 +310,7 @@ Hvor stor blir bitmapen ?
 
 - Tar RAMen vi har og deler den opp i faste størrelser som vi kaller for en page (vanlig 4KB)
     - Virtual memory = virtual page
-    - Physical memory = Page fram
+    - Physical memory = Page frame
 - Mekanismen kalles paging
 - Det som Programet ser kalles page og er en fast størrelse
 - En page plasseres i RAM og blir da kalt page-frame
@@ -317,7 +318,7 @@ Hvor stor blir bitmapen ?
 
 ### MMU 
 - har TLB cache
-- har PageTable-Register 
+- har PageTable-Register (Inneholder en adresse inn til fysisk minne hvor den aktuelle prosessens Page-Tabell ligger)
 
 ##### TLB cache
 - kommer senere
@@ -330,7 +331,7 @@ Hvor stor blir bitmapen ?
 - Hver prosess har hver sin Page Tabell som beskriver hvordan alle adressene skal oversettes 
 
 - <b>Merk!</b> Når CPU skal sende en adresse til minnet:
-1. MMU slår opp i Page-Tabellen (som ligger i registeret)
+1. MMU slår opp i Page-Tabellen (som ligger i registeret (hentet fra RAM))
 2. Oversetter den aktuelle adressen til en fysisk adresse
 - Dette skaper illusjonen om at hver prosess har sitt eget adresserom
 
@@ -344,13 +345,31 @@ Tar Så mange bit som trengs for å representere page størrelsen som offset
 Om page size er 4KB, trengs 12 bits (2^12 = 4068b = 4KB)
 
 - Adresse: 1110 1001 0001 1110
-    - Første 4 er Virtual page number (1110)
-    - Siste 12 er Offset (1001 0001 1110)
+    - Første 4 er Virtual page number (VPN = 1110)
+    - Siste 12 er Offset (1001 0001 1110) 
+    - Offset forblir det samme i den fysiske adressen
 
-Setter
+MMU:
+1. Ser i Page-Table register og finner adressen inn i fysisk minne hvor page table ligger.
+2. Leter opp VirtualPageNnumber i PageTable(som tilhører prosessen)
+3. 1110 = 14 ser på nr 14 i page table og finner Page-Frame nummer
+4. I dette eksempelet er page frame nummer = 101
+5. Setter page frame nummer først = 101
+6. Legger på offset som er 1001 0001 1110
+7. Den fysiske adressen blir da 101 1001 0001 1110
 
 
+#### Illusjonen: 
+- Hver prosess tror den har alt minnet
+- Page tabell mapper Virtual Address -> Physical Address
+Page Tabell har i tillegg til Page Frame Number  en presentbit
+- Presentbit sier om adressen er mappet til en Physicall *
+Address 1 er mappet, 0 er ikke mappet
+-Dirtybit indikerer at pagen er skrevet til, og endringen ikke er lagret på disk
+- R/W bit = aksesskontroll
+- Page tabell ligger i RAM og må lastet inn i PT-register for hver prosess på CPU
 
+ 
 
 
 
