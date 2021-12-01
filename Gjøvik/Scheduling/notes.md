@@ -53,7 +53,9 @@ Betyr at prosessen venter på I/O, for det meste har den ikke noe å gjøre etc:
 Ikke så mye brukt, laster du mye data i minne, så kan minne bli flaskehalsen.
 
 - <b>Real-time</b>
-Real time-Prosesser som har tidsfrister
+- Real time-Prosesser som har tidsfrister
+- Real time-prosesser må ha høyere prioritet i MLFQ
+    - mange Kernel prosesser har også som regel høy prioritet
     - Soft real time (multimedia) (Har deadlines, men ikke noe krise om du går glipp av de, kan føre til feks, hakkete film)
     - hard real time (robotics) Krise om du misser tidsfrister, feks selvkjørende bil
 
@@ -218,8 +220,52 @@ Mitt OS bruker 100 millisekunder som timeslice
     Forsøker å kjøre de høyest prioriterte prosessene først
     ```
 
-```
 
+
+
+### Lottery scheduling (Random)
+- Konsept for rettferdig fordeling Lottery scheduling
+- Hvilken prosess skal få kjøre?
+    - vi trekker lodd om hvem som skal få
+    - Om en prosess skal ha høyere prioritet, så får den flere lodd i lotteriet, større sjanse for å vinne
+    - Ganske skart mekanisme innenfor informatikk
+    - Veldig lav overhead og enkelt og implementere
+
+
+
+## Multiprocessor scheduling issues
+- Ingen elektrisk signal kan bevege seg raskere enn lysets hastighet <i>30cm/ns</i> (in vaccum <i>20cm/ns</i>) i kobber / optisk kabel (Einstein)
+- 1ghz prosessor skal gjøre noe 1 milliard ganger i sekundet
+om en instruksjon skal hente noe fra minnet, så kan minnet være maks 20cm unna.
+- Årsaken til at vi ikke har 10ghz prosessorer i dag, er at vi nærmer oss de fysiste begrensningene.
+
+- Siden vi ikke kan skallere vertikalt (øke ghz), så må vi skalere horisontalt (Øke antall CPUer / cores)
+- Da må vi paralellisere, som kommer med egne problemer
+
+- Servere har maks ca 64 CPUer hvorfor ikke fler?
+    - Paralelliseringsproblemer
+    - write back caching med flere enn 64 skaper veldig høy overhead pga at alle CPUcacher må synkroniseres
+
+#### Cache affinity
+- skal vi la en prosess kjøre på samme CPU som sist?
+    - Om ikke noe gjøres, så velges en tilfeldig CPU
+    - Årsaken at man kanskje ikke vil velge tilfeldig CPU er at det er mye prosess/tråd spesifikk caching av data knyttet til en CPU
+    - affinity scheduling forsøker å la en prosess kjøre på samme CPU som sist, i håp om at det er igjen relevant data for tråden i dxen CPUen sin cache.
+    - Hvilken CPU Kan kontrollere i terminal med:
+    ```
+    $>taskset -c 2 ./regn-5.bash
+    ```
+    - CPU affinity/pinning: Låse en prosess til en fast CPU
+
+
+
+#### Gang Scheduling
+- Skal tråder fra samme prosess kjøre til samme tid på CPUene?
+    - Vanskelig spørsmål, spørs på arbeidet som skal gjøres. Gir bare mening å gjøre det slik om trådene kommuniserer mye med hverandre. Kommer tilbake til det i Synchronisation.
+
+```
+Tråder: en prosess er et entråd program
+$>pstree -s | less
 ```
  
     
