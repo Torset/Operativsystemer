@@ -134,7 +134,7 @@ Dette tar veldig mye plass i RAM
 
 ## OM TID SE FERDIG MEMORY MANAGEMENT DEL 2
 
-
+## Sjekk opp dirty COW
 
 
 

@@ -156,6 +156,10 @@ Kalles kritisk sektor
     - T1 inkrementerer = 51
     - T1 Skriver til minnet = 51
     - Skulle vært 52
+##### Nøkkelproblemstilling:
+- eax (register på CPU)
+- int i (variabel i RAM)
+- 2 tråder skal bytte på å telle opp i
 
 #### Løsning: Mutual exclusion
 - Bare en tråd kan telle om gangen

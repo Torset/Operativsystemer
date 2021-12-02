@@ -31,7 +31,8 @@ Prosess pid = 79399 Child (rc = 0)
 
 
 ### Copy On Write (COW)
-- passer på ...
+- Legg inn denne ... !!!!!!
+!!!!!!!!!!!!!!!!!!!!!!
 
 
 ### Parralellisering Wait()
