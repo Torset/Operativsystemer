@@ -237,7 +237,7 @@ Change: 2021-12-03 05:01:03.882066987 -0800
 - En soft link er en fil (med egen inode nummer) hvor innholdet er stien  (eks: /tmp/mysil) til en annen fil
 
 
-#### Slette fil eksempel:
+### Eksempel på linker:
 ```
 $>cd /tmp
 $> echo mysil > a
@@ -301,22 +301,92 @@ a og hard har samme inodenummer = samme fil
 sym har eget inodenr og er en shortcut til innholdet i a
 ```
 
-### Fortsett her, forelesning krasjet på 39 min CA!
+#### Slette fil eksempel:
+```
+$>cat a
+mysil
+$>cat sym
+mysil
+$>rm a
+$>ls -li
+total 4
+656074 -rw-rw-r-- 1 jorgen jorgen 6 Dec  3 05:57 hard
+656075 lrwxrwxrwx 1 jorgen jorgen 1 Dec  3 05:57 sym -> a
 
-### Access control
 
+// Ser her at sym -> a (er i rød farge)
+// Siden den ikke fungerer
+
+$>cat sym
+cat: sym: No such file or directory
+
+// filen finnes fortsatt(inoden), men sym linker til filnavnet a, som ikke eksisterer
+```
+
+- 3 ting som skjer når man sletter en fil
+    1. Fjerner katalog-entry
+    2. Inoden markeres som ledig for gjenbruk
+    3. Datablokkene markeres som ledig til gjenbruk
+- 3 skrive opperasjoner når man sletter en fil
+
+
+
+### Rettigheter (rwxrwxrwx user, group, others)
 - Permissions bits
-
-- rwxrwxrwx user, group, others
+    - 9 bits (3 for hver, eier, gruppe og andre)
+        - 111111111 = rwxrwxrwx
+        - 111000000 = rwx------
+        - 111110100 = rwxrw-r--
 
 - change with chmod(), chown()
+    - r = 4
+    - w = 2
+    - x = 1
+```
+$>chmod 111 hard
+$>ls -l
+---x--x--x 1 jorgen jorgen 6 Dec  3 05:57 hard
 
-- SetUID, SetGID, Sticky bit
+$>chmod 764 hard
+$>ls -l
+-rwxrw-r-- 1 jorgen jorgen 6 Dec  3 05:57 hard
+
+
+$>chmod 700 hard
+$>ls -l
+-rwx------ 1 jorgen jorgen 6 Dec  3 05:57 hard
 
 ```
-Demo:
-    ls -l $(which passwd)
-    ls -ld /tmp
+
+### SetUID, SetGID, Sticky bit
+
+#### SetUID = s
+- Settes sammen med (oppå) x til eier
+- Gjør at alle andre har lov til å kjøre programmet som eier av filen  (i dette tilfellet som root)
+    - passwd må ha skrivetilgang til passorddatabasen
+    - Jeg som bruker kan ikke få tilgang til passorddatabasen
+    - Men passwd må ha det, derfor må jeg ha lov til å kjøre    passwd rom root for å endre passordet mitt
+
+```
+    $>ls -l $(which passwd)
+    -rwsr-xr-x 1 root root 59976 Jun 17 12:35 /usr/bin/passwd
+    // s = setUid bit
+    
+ 
+```
+#### SetGid
+- kjøre som gruppen til root, men aldri i bruk
+
+#### Stickybit = t
+- På tmp katalogen er stickybit satt
+    - Fra gammelt, bit som ber OS om å forsøke å holde denne prosessen i minnet (Ikke swap ut på disk)
+    - I dag betyr det at alle får lov til å skrive til tmp katalogen, men ingen har lov til å slette hverandres filer.
+        - Selv om alle har skriverettigheter til katalogen
+
+```
+     $>ls -ld /tmp
+    drwxrwxrwt 23 root root 4096 Dec  3 06:29 /tmp
+    
 ```
 
 
