@@ -31,8 +31,10 @@ Prosess pid = 79399 Child (rc = 0)
 
 
 ### Copy On Write (COW)
-- Legg inn denne ... !!!!!!
-!!!!!!!!!!!!!!!!!!!!!!
+
+- Copies the file and writes it to a new location on the disk before it removes the data from the old location and updates the inode
+
+- COW helps guard against corruption because it copies the file and writes it to a new location on the disk before it removes the data from the old location and updates the inode, this is done atomically as a transaction, thus guarding against corruption as the file wil not be modified unless it is safely written to disk. This means that if you should have a system crash in the middle of writing, the file will just as it was before the crash.
 
 
 ### Parralellisering Wait()
