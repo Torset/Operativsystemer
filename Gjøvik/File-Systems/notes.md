@@ -2,10 +2,13 @@
 
 #### Fil
 1. Hva betyr det at en fil har to deler?
+    - En fil er en inode og filinholdet
 
 2. Hva er en directory / katalog / mappe / folder?
+    - En spesiel fil med en tabell som ampper filnavn til inode
 
 3. Hva betyr det at en directory bare er en fil ?
+    - Er bare en fil med eget inodenr
 
 - Operativsystemet sin oppgave er å ta vare på innholdet i fila, og de tilhørende metadataene. Dette må man organisere et filsystem for
 
@@ -388,6 +391,280 @@ $>ls -l
     drwxrwxrwt 23 root root 4096 Dec  3 06:29 /tmp
     
 ```
+
+### Creating and mounting
+
+```
+Partisjonering:
+$>cfdisk /dev/sdb5
+```
+
+```
+Opprette Filsystem
+$>mkfs /dev/sda1
+```
+
+- Fil-systemet tar plass på disken (kanskje 50gb på en 1TB disk)
+    - Må reservere plass til inoder
+    - Sektorer blir så gruppert i blokker
+
+```
+Eks:
+FS = Fil-system (Består av inoder (en pr fil) 256 bytes)
+D = Sektor / Page(SSD)
+
+1 TB Disk:       |-- Blokk 1 --||-- Blokk 2 --|...etc...   
+[[FS][FS][FS][FS][D][D][D][D][D][D][D][D][D][D][D]]
+```
+
+### FS oversikt
+1. Data-bitmap
+2. Inode-bitmap
+
+- 1 og 2 = Oversikt over hvilke data/inoder som er i bruk, og hvilke som er ledige 
+
+```
+Eks: 
+I = inoder
+i = inode-bitmap
+D = data
+d = data-bitmap
+S = Superblokk (Informasjon om systemet)
+
+
+1 TB Disk:               |-- Blokk 1 --||-- Blokk 2 --|...etc...   
+[[S][i][d][I][I][I][I][I][D][D][D][D][D][D][D][D][D][D][D]]
+```
+Ser her at ganske mange MegaByte forsvinner til "Metadata"
+
+
+
+### Hvordan kommer vi oss fra metadata til datablokkene
+- Datablokken er der selve innholdet er
+
+```
+$>cat hard
+mysil
+
+// Hvordan kom mysil på skjermen?
+
+$>ls -li
+656074 -rwxrw-r-- 1 jorgen jorgen 6 Dec  3 05:57 hard
+656075 lrwxrwxrwx 1 jorgen jorgen 1 Dec  3 05:57 sym -> a
+
+// Ser at hard er i denne katalogen og har 656074 som inodenummer.
+// Slår opp i denne (656074) inoden og på ett eller annet magisk vis
+// kommer jeg meg til innholdet i fila og får skrevet ut mysil.
+
+// Hvordan kommer jeg meg fra inodetallet til innholdet i fila ?
+
+// Løsning:
+// I Inoden så er det satt av 60byte til disk pointers(15 stk totalt)
+```
+
+
+
+- Når filen er liten, så er det enkelt:
+    - Inoden inneholder adressene til blokka
+
+- Når filen er stor
+    - Bruker indirekte adressering
+
+
+### Indirekte Adressering
+
+- Liten fil:
+- Inode med informasjon og opptil 12 blokk adresser
+- Om filen ikke er større enn 12 blokker, så får alt plass i inoden
+- Standard blokkstørrelse = 4KB
+- 12 * 4KB = 48KB, så så lenge filen ikke er større en 48KB, så går dette fint
+
+```
+Eks:
+
+[Inode]
+[Informasjon]
+[Informasjon]
+[Informasjon]
+[Informasjon]
+[ Addresse 1]
+[ Addresse 2]
+[ Addresse 3]
+[...........]
+[Addresse 12] 
+[Addresse 13]reservert indirekte
+[Addresse 14]reservert dobbel
+[Addresse 15]reservert trippel
+```
+
+
+- Stor fil;
+- Om filen er større enn 12 blokker, så blir Addresse 13 til en peker, som peker til en blokk på disk, som kan fylles med adresser
+
+```
+Eks:
+
+[Inode]
+[Informasjon]
+[Informasjon]
+[Informasjon]
+[Informasjon]
+[ Addresse 1]
+[ Addresse 2]
+[ Addresse 3]
+[...........]
+[Addresse 12]
+[Addresse 13] ---> Peker til en blokk med adresser
+[Addresse 14] reservert dobbel
+[Addresse 15] reservert trippel
+```
+
+## Trolig spm på eksamen:
+Med Blokkstørrelse på 4KB og Addresse-størrelse på 32bit, hvor stor fil kan jeg ha med singel-indirekte adressering?
+
+### Utregning Singel-Indirekte
+- Blokkstørrelse = 4KB
+- Addresse-størrelse = 32bit
+
+```
+Først finn ut hvor mange adresser som går i en blokk:
+4KB / 32b
+32b = 4B
+4KB/4B = 1K
+1K = 2^10 (= 1024) Antall adresser
+
+Her peker hver addresse til en blokk som er 4KB
+
+4KB = 2^2 * 2^10 = 2^12
+
+1K * 4KB = 2^10 * 2^12 = 2^22B
+
+= 4MB (+ 48KB fra inoden)
+
+Svar: Med indirekte adressering kan filen være 4 MB stor.
+```
+
+
+### Kan ha Dobbel-indirekte adressering:
+- Her peker adresse 14 på en blokk som inneholder pekere til blokker med adresser
+DVS: 
+- adressene 1 - 12 i inoden er full (48KB)
+- adressene i dobbel indirekte er full (4MB)
+- Snakker nå om adresse 14 i inoden
+
+
+### Utregning Dobbel-Indirekte
+- Blokkstørrelse = 4KB
+- Addresse-størrelse = 32bit
+
+```
+Først finn ut hvor mange adresser som går i en blokk:
+4KB / 32b
+32b = 4B
+4KB/4B = 1K
+1K = 2^10 (= 1024) Antall adresser
+
+Her peker hver addresse til en blokk som hver kan ha 1024 adresser
+antall adresser blir da 1024^2
+evt 2^10^2 = 2^20 = 1M
+
+4KB = 2^2 * 2^10 = 2^12
+
+1M * 4KB = 2^20 * 2^12 = 2^32B
+
+= 4GB (+ 48KB fra inoden)
+
+Svar: Med dobbel-indirekte adressering kan filen være 4 GB stor.
+```
+
+### Kan ha trippel indirekte også.
+
+
+#### EXT4
+- Bruker extents
+- På samme måte som NTFS
+
+
+### Lese en fil fra disk
+- Tar 10ms å lese fra disk (Veldig tregt)
+- 10 000 000 ganger raskere å aksessere register enn å aksessere disk
+- Ledig RAM brukes derfor som cache mot disk
+
+- Skal lese file "foo" som ligger i katalogen "bar"
+    - Inode nr 2 er alltid rota / toppen av filsystemet på EXT
+    - vat da at path er "/foo/bar"
+
+
+
+## Crash management
+- Hva hvis stømmen går?
+    - Jeg har en inode som er i bruk, men som ikke er registrert i en katalog
+    - Dette er det FSCK gjør
+        - Går gjennom: For hver eneste inode i inode-bitmapen:
+        - Hvis den er i bruk, skal jeg finne den i en katalog
+        - Hvis ikke, så er det en feil i filsysteme som jeg må håndtere
+
+
+### FSCK
+
+- File System Checking
+- Are the inodes that are marked as used present in directories?
+- Are the data blocks that are marked as used present in inodes?
+- A bunch of small checks: e.g. are all values sensible (within
+range)?
+
+Takes "forever" on a large HDD
+
+#### Idempotence
+
+- Er noe galt, og jeg gjør en funksjon på det, så blir det riktig
+- Er noe riktig, og jeg gjør en funksjon på det, så forblirblir det riktig
+- altså:
+    - f(galt) = riktig
+    - f(riktig) = riktig
+
+### Journalling
+
+- Journalling File Systems
+
+- What is the difference between:
+
+- Add newly freed blocks from i-node K to the end of the free list
+    - (Ikke idempotent fordi om den gjøres flere ganger, så legges     blokkadressene til flere ganger på lista)
+
+- and
+
+- Search the list of free blocks and add newly freed blocks from
+i-node K to it if they are not already present
+    - (Idempotent  fordi hvist jeg søker gjennom listen å legger de til kun om de ikke finnes der fra før)
+- ?
+
+#### Journaling File Systems
+
+- To make journalling work, the logged operations must be idempotent
+("convergent").
+
+- A Journalling file system keep a log of the operations it is going
+to do, so they can be redone in case of a system crash (see first
+two illustrations of chp 42.3)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
