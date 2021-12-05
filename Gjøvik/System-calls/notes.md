@@ -9,6 +9,29 @@
 - Child returnerer 0
 
 #### med dette kan vi si at denne koden kal utføres i child / parent eks:
+```
+#include <stdio.h>  /* printf */
+#include <unistd.h> /* fork */
+
+int main(void) {
+  int p;
+
+  p=fork();    /*Her kloner jeg resten av prosessen*/
+  printf("\n fork returnerer pid = %d\n", p);
+
+  return 0;
+}
+
+Output:
+
+
+ fork returnerer pid = 5015
+
+ fork returnerer pid = 0
+
+```
+
+
 
 ```
 if rc < 0 Fork feilet

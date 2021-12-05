@@ -1,5 +1,7 @@
 # Address spaces and paging
 
+[Bilde som rep system](https://gitlab.com/erikhje/iikos/-/raw/master/img/hw-2-addrspace.png)
+
 ### To ting prosesser ikke får lov til å gjører i user mode
 - I/O opperasjoner
     - tastatur
@@ -331,9 +333,11 @@ Hvor stor blir bitmapen ?
 - Hver prosess har hver sin Page Tabell som beskriver hvordan alle adressene skal oversettes 
 
 - <b>Merk!</b> Når CPU skal sende en adresse til minnet:
-1. MMU slår opp i Page-Tabellen (som ligger i registeret (hentet fra RAM))
+1. MMU slår opp i Page-Tabellen i RAM (adressen ligger i registeret (hentet fra RAM))
 2. Oversetter den aktuelle adressen til en fysisk adresse
 - Dette skaper illusjonen om at hver prosess har sitt eget adresserom
+
+[AddressTranslation](https://gitlab.com/erikhje/iikos/-/raw/master/img/addrtrans.png)
 
 ### Hvordan MMU jobber når den oversetter
 - Oversettingsmekanismen
@@ -365,9 +369,9 @@ MMU:
 Page Tabell har i tillegg til Page Frame Number  en presentbit
 - Presentbit sier om adressen er mappet til en Physicall *
 Address 1 er mappet, 0 er ikke mappet
--Dirtybit indikerer at pagen er skrevet til, og endringen ikke er lagret på disk
+- Dirtybit indikerer at pagen er skrevet til, og endringen ikke er lagret på disk
 - R/W bit = aksesskontroll
-- Page tabell ligger i RAM og må lastet inn i PT-register for hver prosess på CPU
+- Page tabell ligger i RAM og må lastet inn i PageTable-register for hver prosess på CPU
 
  
 

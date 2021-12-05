@@ -235,7 +235,7 @@ New password:
 Si at dette er minnet og den angriper har skrevet inn et virus
 1 [instruksjon]
 2 [instruksjon]
-3 [instruksjon]
+3 [instruksjon] 
 4 [instruksjon]
 5 [instruksjon]
 6 [instruksjon]
@@ -258,7 +258,7 @@ om du får til en buffer overflow kan angriper benytte seg ar "noop sled" DVS: s
 
 1 [    nop    ]
 2 [    nop    ]
-3 [    nop    ]
+3 [    nop    ] 
 4 [    nop    ]
 5 [    nop    ]
 6 [    nop    ]

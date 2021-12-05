@@ -1,5 +1,7 @@
 # Computer architecture:
 
+[Bilde som rep system](https://gitlab.com/erikhje/iikos/-/raw/master/img/hw-2-addrspace.png)
+
 ## CPU 
 
 ``` Henter / lagrer ting i minnet ```
